@@ -17,7 +17,7 @@ limitations under the License.
 package click.kobaken.rxirohaandroid_sample.model;
 
 public enum QRType {
-    GIFT("gift"), TRANSFER("transfer");
+    GIFT("gift"), TRANSFER("Transfer");
 
     private String type;
 

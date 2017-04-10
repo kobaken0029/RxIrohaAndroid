@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import click.kobaken.rxirohaandroid.model.Transaction;
 import click.kobaken.rxirohaandroid_sample.R;
-import click.kobaken.rxirohaandroid_sample.model.TransactionHistory;
+import click.kobaken.rxirohaandroid_sample.model.QRType;
 import click.kobaken.rxirohaandroid_sample.util.AndroidSupportUtil;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -39,11 +39,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public final class BindingUtils {
     @BindingAdapter({"background", "public_key", "context"})
     public static void setBackgroundDrawableByTransactionType(
-            CircleImageView view, Transaction transaction, String publicKey, Context c) {
+            CircleImageView view, Transaction tx, String publicKey, Context c) {
 
         final Drawable target;
 
-        if (transaction.isSender(publicKey) && transaction.params.command.equals(TransactionHistory.TRANSFER)) {
+        if (tx.isSender(publicKey) && tx.params.command.equals(QRType.TRANSFER.getType())) {
             target = AndroidSupportUtil.getDrawable(c, R.drawable.icon_send);
         } else {
             target = AndroidSupportUtil.getDrawable(c, R.drawable.icon_rec);
@@ -53,11 +53,11 @@ public final class BindingUtils {
     }
 
     @BindingAdapter({"transaction", "public_key"})
-    public static void setTransactionOpponentText(TextView textView, Transaction transaction, String publicKey) {
+    public static void setTransactionOpponentText(TextView textView, Transaction tx, String publicKey) {
         String type;
-        String command = transaction.params.command;
+        String command = tx.params.command;
 
-        if (transaction.isSender(publicKey) && command.equals(TransactionHistory.TRANSFER)) {
+        if (tx.isSender(publicKey) && command.equals(QRType.TRANSFER.getType())) {
             type = "to ";
         } else {
             type = "from ";
@@ -67,7 +67,11 @@ public final class BindingUtils {
         if (command.equals("Add")) {
             displayText += "Register";
         } else {
-            displayText += transaction.params.receiver;
+            if (tx.isSender(publicKey)) {
+                displayText += tx.params.receiver;
+            } else {
+                displayText += tx.params.sender;
+            }
         }
         textView.setText(displayText);
     }
