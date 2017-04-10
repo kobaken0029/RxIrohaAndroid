@@ -16,6 +16,7 @@ limitations under the License.
 
 package click.kobaken.rxirohaandroid_sample.view.fragment;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,12 +26,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import click.kobaken.rxirohaandroid_sample.R;
 import click.kobaken.rxirohaandroid_sample.databinding.FragmentAssetSenderBinding;
-import click.kobaken.rxirohaandroid_sample.navigator.Navigator;
+import click.kobaken.rxirohaandroid_sample.exception.ErrorMessageFactory;
+import click.kobaken.rxirohaandroid_sample.exception.IllegalQRCodeException;
+import click.kobaken.rxirohaandroid_sample.model.TransferQRParameter;
 import click.kobaken.rxirohaandroid_sample.presenter.AssetSenderPresenter;
 import click.kobaken.rxirohaandroid_sample.view.AssetSenderView;
 import click.kobaken.rxirohaandroid_sample.view.activity.MainActivity;
+import click.kobaken.rxirohaandroid_sample.view.activity.QRScannerActivity;
 import click.kobaken.rxirohaandroid_sample.view.dialog.ErrorDialog;
 import click.kobaken.rxirohaandroid_sample.view.dialog.ProgressDialog;
 import click.kobaken.rxirohaandroid_sample.view.dialog.SuccessDialog;
@@ -104,6 +112,33 @@ public class AssetSenderFragment extends Fragment
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
+        if (result != null) {
+            if (result.getContents() == null) {
+                Log.e(TAG, "onActivityResult: Canceled!");
+                return;
+            }
+
+            TransferQRParameter params;
+            try {
+                params = new Gson().fromJson(result.getContents(), TransferQRParameter.class);
+            } catch (Exception e) {
+                Log.e(TAG, "onActivityResult: json could not parse to object!");
+                showError(ErrorMessageFactory.create(getContext(), new IllegalQRCodeException()));
+                return;
+            }
+
+            final String value = String.valueOf(params.amount).equals("0")
+                    ? ""
+                    : String.valueOf(params.amount);
+            Log.d(TAG, "onActivityResult: " + value);
+            afterQRReadViewState(params.account, value);
+        }
+    }
+
+    @Override
     public void showError(String error) {
         errorDialog.show(getActivity(), error);
     }
@@ -136,7 +171,13 @@ public class AssetSenderFragment extends Fragment
 
     @Override
     public void showQRReader() {
-        Navigator.getInstance().navigateToQRReaderActivity(getContext(), assetSenderPresenter.onReadQR());
+        IntentIntegrator.forSupportFragment(this)
+                .setBeepEnabled(false)
+                .setOrientationLocked(true)
+                .setBarcodeImageEnabled(true)
+                .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                .setCaptureActivity(QRScannerActivity.class)
+                .initiateScan();
     }
 
     @Override

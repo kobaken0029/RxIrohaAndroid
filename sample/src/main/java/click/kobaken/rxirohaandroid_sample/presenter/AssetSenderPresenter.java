@@ -23,10 +23,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
-import com.google.gson.Gson;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -38,16 +34,13 @@ import javax.crypto.NoSuchPaddingException;
 import click.kobaken.rxirohaandroid.Iroha;
 import click.kobaken.rxirohaandroid.model.BaseModel;
 import click.kobaken.rxirohaandroid.model.KeyPair;
-import click.kobaken.rxirohaandroid.qr.ReadQRCallback;
 import click.kobaken.rxirohaandroid.security.MessageDigest;
 import click.kobaken.rxirohaandroid_sample.R;
 import click.kobaken.rxirohaandroid_sample.exception.ErrorMessageFactory;
-import click.kobaken.rxirohaandroid_sample.exception.IllegalQRCodeException;
 import click.kobaken.rxirohaandroid_sample.exception.NetworkNotConnectedException;
 import click.kobaken.rxirohaandroid_sample.exception.ReceiverNotFoundException;
 import click.kobaken.rxirohaandroid_sample.exception.SelfSendCanNotException;
 import click.kobaken.rxirohaandroid_sample.model.QRType;
-import click.kobaken.rxirohaandroid_sample.model.TransferQRParameter;
 import click.kobaken.rxirohaandroid_sample.util.NetworkUtil;
 import click.kobaken.rxirohaandroid_sample.view.AssetSenderView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -117,36 +110,6 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
             @Override
             public void onClick(View view) {
                 assetSenderView.showQRReader();
-            }
-        };
-    }
-
-    public ReadQRCallback onReadQR() {
-        return new ReadQRCallback() {
-            @Override
-            public void onSuccessful(String result) {
-                Log.d(TAG, "onSuccessful: " + result);
-
-                final Context context = assetSenderView.getContext();
-
-                TransferQRParameter params;
-                try {
-                    params = new Gson().fromJson(result, TransferQRParameter.class);
-                } catch (Exception e) {
-                    Log.e(TAG, "setOnResult: json could not parse to object!");
-                    assetSenderView.showError(ErrorMessageFactory.create(context, new IllegalQRCodeException()));
-                    return;
-                }
-
-                final String value = String.valueOf(params.amount).equals("0")
-                        ? ""
-                        : String.valueOf(params.amount);
-                assetSenderView.afterQRReadViewState(params.account, value);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                Log.e(TAG, "onFailure: ", throwable);
             }
         };
     }
@@ -262,7 +225,6 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
                 + ",asset-uuid:" + uuid;
     }
 
-    @NotNull
     private KeyPair getKeyPair() {
         if (keyPair == null) {
             final Context context = assetSenderView.getContext();

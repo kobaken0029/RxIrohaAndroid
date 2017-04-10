@@ -34,8 +34,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.WriterException;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -47,10 +45,10 @@ import javax.crypto.NoSuchPaddingException;
 import click.kobaken.rxirohaandroid.Iroha;
 import click.kobaken.rxirohaandroid.model.Account;
 import click.kobaken.rxirohaandroid.model.KeyPair;
-import click.kobaken.rxirohaandroid.qr.QRCodeGenerator;
 import click.kobaken.rxirohaandroid_sample.R;
 import click.kobaken.rxirohaandroid_sample.exception.ErrorMessageFactory;
 import click.kobaken.rxirohaandroid_sample.model.TransferQRParameter;
+import click.kobaken.rxirohaandroid_sample.util.QRCodeGenerator;
 import click.kobaken.rxirohaandroid_sample.view.AssetReceiveView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -221,7 +219,6 @@ public class AssetReceivePresenter implements Presenter<AssetReceiveView> {
         assetReceiveView.setPublicKey(getPublicKey());
     }
 
-    @NotNull
     private String getPublicKey() {
         if (publicKey == null || publicKey.isEmpty()) {
             final Context context = assetReceiveView.getContext();
@@ -237,7 +234,6 @@ public class AssetReceivePresenter implements Presenter<AssetReceiveView> {
         return publicKey;
     }
 
-    @NotNull
     private String getUuid() {
         final Context context = assetReceiveView.getContext();
         if (uuid == null || uuid.isEmpty()) {
