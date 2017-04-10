@@ -17,12 +17,7 @@ limitations under the License.
 package click.kobaken.rxirohaandroid_sample.navigator;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
 
-import click.kobaken.rxirohaandroid.qr.QRReaderBuilder;
-import click.kobaken.rxirohaandroid.qr.ReadQRCallback;
-import click.kobaken.rxirohaandroid_sample.R;
 import click.kobaken.rxirohaandroid_sample.view.activity.AccountRegisterActivity;
 import click.kobaken.rxirohaandroid_sample.view.activity.MainActivity;
 
@@ -48,16 +43,6 @@ public class Navigator {
     public void navigateToMainActivity(Context context, String uuid) {
         if (context != null) {
             context.startActivity(MainActivity.getCallingIntent(context, uuid));
-        }
-    }
-
-    public void navigateToQRReaderActivity(Context context, @NonNull ReadQRCallback callback) {
-        if (context != null) {
-            Intent intent = new QRReaderBuilder(context)
-                    .setCallback(callback)
-                    .setLayoutId(R.layout.activity_qr_reader)
-                    .build();
-            context.startActivity(intent);
         }
     }
 }
