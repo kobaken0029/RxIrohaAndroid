@@ -39,16 +39,15 @@ public class OperateAssetUseCase {
                                      String assetReceiver,
                                      String assetSignature,
                                      long assetTimestamp) {
-        return assetRepository.operation(new AssetOperationRequest() {{
-            uuid = assetUuid;
-            params = new Transaction.OperationParameter() {{
-                command = operateCommand;
-                value = assetValue;
-                sender = assetSender;
-                receiver = assetReceiver;
-            }};
-            signature = assetSignature;
-            timestamp = assetTimestamp;
-        }});
+        AssetOperationRequest request = new AssetOperationRequest();
+        request.uuid = assetUuid;
+        request.params = new Transaction.OperationParameter();
+        request.params.command = operateCommand;
+        request.params.value = assetValue;
+        request.params.sender = assetSender;
+        request.params.receiver = assetReceiver;
+        request.signature = assetSignature;
+        request.timestamp = assetTimestamp;
+        return assetRepository.operation(request);
     }
 }

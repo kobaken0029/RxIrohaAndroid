@@ -93,25 +93,17 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
     }
 
     public View.OnClickListener onSubmitClicked() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    send();
-                } catch (ReceiverNotFoundException e) {
-                    assetSenderView.showError(ErrorMessageFactory.create(assetSenderView.getContext(), e));
-                }
+        return v -> {
+            try {
+                send();
+            } catch (ReceiverNotFoundException | SelfSendCanNotException e) {
+                assetSenderView.showError(ErrorMessageFactory.create(assetSenderView.getContext(), e));
             }
         };
     }
 
     public View.OnClickListener onQRShowClicked() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                assetSenderView.showQRReader();
-            }
-        };
+        return v -> assetSenderView.showQRReader();
     }
 
     public TextWatcher textWatcher() {
@@ -139,26 +131,27 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
         };
     }
 
-    private void send() throws ReceiverNotFoundException {
+    private void send() throws ReceiverNotFoundException, SelfSendCanNotException {
         final String receiver = assetSenderView.getReceiver();
         final String amount = assetSenderView.getAmount();
 
         if (receiver.isEmpty() || amount.isEmpty()) {
             throw new ReceiverNotFoundException();
-        }
+        } else if (isQRMine()) {
+            throw new SelfSendCanNotException();
+        } else {
+            assetSenderView.showProgress();
 
-        assetSenderView.showProgress();
-
-        if (validation()) {
             final String assetUuid = "60f4a396b520d6c54e33634d060751814e0c4bf103a81c58da704bba82461c32";
-            final String command = QRType.TRANSFER.getType();
+            final String command = QRType.TRANSFER.getType().toLowerCase();
             final String sender = keyPair.publicKey;
             final long timestamp = System.currentTimeMillis() / 1000;
             final String message = generateMessage(timestamp, amount, sender, receiver, command, assetUuid);
-            final String signature = MessageDigest.digest(message, MessageDigest.Algorithm.SHA3_256);
+            final String signature = Iroha.sign(keyPair, MessageDigest.digest(message, MessageDigest.Algorithm.SHA3_256));
 
             assetSenderView.hideProgress();
 
+            Log.d(TAG, "send: " + message);
             Disposable disposable = Iroha.getInstance()
                     .operateAsset(
                             assetUuid,
@@ -183,12 +176,9 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
                                     c.getString(R.string.successful_title_sent),
                                     c.getString(R.string.message_send_asset_successful,
                                             assetSenderView.getReceiver(), assetSenderView.getAmount()),
-                                    new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            assetSenderView.hideSuccess();
-                                            assetSenderView.beforeQRReadViewState();
-                                        }
+                                    v -> {
+                                        assetSenderView.hideSuccess();
+                                        assetSenderView.beforeQRReadViewState();
                                     });
                         }
 
@@ -210,8 +200,6 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
                     });
 
             compositeDisposable.add(disposable);
-        } else {
-            assetSenderView.hideProgress();
         }
     }
 
@@ -240,17 +228,7 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
         return keyPair;
     }
 
-    private boolean validation() {
-        if (assetSenderView.getReceiver().equals(keyPair.publicKey)) {
-            Log.e(TAG, "setOnResult: This QR is mine!");
-            assetSenderView.showError(
-                    ErrorMessageFactory.create(
-                            assetSenderView.getContext(),
-                            new SelfSendCanNotException()
-                    )
-            );
-            return false;
-        }
-        return true;
+    private boolean isQRMine() throws SelfSendCanNotException {
+        return assetSenderView.getReceiver().equals(keyPair.publicKey);
     }
 }
