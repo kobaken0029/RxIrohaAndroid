@@ -23,8 +23,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -227,7 +225,6 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
                 + ",asset-uuid:" + uuid;
     }
 
-    @NotNull
     private KeyPair getKeyPair() {
         if (keyPair == null) {
             final Context context = assetSenderView.getContext();

@@ -34,8 +34,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.zxing.WriterException;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -221,7 +219,6 @@ public class AssetReceivePresenter implements Presenter<AssetReceiveView> {
         assetReceiveView.setPublicKey(getPublicKey());
     }
 
-    @NotNull
     private String getPublicKey() {
         if (publicKey == null || publicKey.isEmpty()) {
             final Context context = assetReceiveView.getContext();
@@ -237,7 +234,6 @@ public class AssetReceivePresenter implements Presenter<AssetReceiveView> {
         return publicKey;
     }
 
-    @NotNull
     private String getUuid() {
         final Context context = assetReceiveView.getContext();
         if (uuid == null || uuid.isEmpty()) {
