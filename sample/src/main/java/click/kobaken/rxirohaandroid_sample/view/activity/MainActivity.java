@@ -17,20 +17,18 @@ limitations under the License.
 package click.kobaken.rxirohaandroid_sample.view.activity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -62,6 +60,7 @@ import click.kobaken.rxirohaandroid_sample.navigator.Navigator;
 import click.kobaken.rxirohaandroid_sample.view.fragment.AssetReceiveFragment;
 import click.kobaken.rxirohaandroid_sample.view.fragment.AssetSenderFragment;
 import click.kobaken.rxirohaandroid_sample.view.fragment.WalletFragment;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -171,54 +170,56 @@ public class MainActivity extends AppCompatActivity {
     private void initNavigationView() {
         binding.navigation.getMenu().getItem(0).setChecked(true);
         binding.navigation.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        boolean isChecked = item.isChecked();
-                        switch (item.getItemId()) {
-                            case R.id.action_home:
-                                if (isChecked) break;
-                                binding.bottomNavigation.setVisibility(View.VISIBLE);
-                                binding.toolbar.setTitle(getString(R.string.receive));
-                                switchFragment(assetReceiveFragment, AssetReceiveFragment.TAG);
-                                allClearNavigationMenuChecked();
-                                allClearBottomNavigationMenuChecked();
-                                binding.navigation.getMenu().getItem(0).setChecked(true);
-                                binding.bottomNavigation.getMenu().getItem(0).setChecked(true);
-                                break;
-                            case R.id.action_unregister:
-                                new AlertDialog.Builder(MainActivity.this)
-                                        .setMessage("Are you sure you want to delete your account info?")
-                                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                dialogInterface.dismiss();
-                                            }
-                                        })
-                                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                dialogInterface.dismiss();
-                                                Account.delete(getApplicationContext());
-                                                navigator.navigateToRegisterActivity(getApplicationContext());
-                                                finish();
-                                            }
-                                        })
-                                        .setCancelable(true)
-                                        .create().show();
-                                break;
-                            case R.id.action_oss:
-                                if (isChecked) break;
-                                binding.bottomNavigation.setVisibility(View.GONE);
-                                binding.toolbar.setTitle(getString(R.string.open_source_license));
-                                switchFragment(libsFragment, "libs");
-                                allClearNavigationMenuChecked();
-                                binding.navigation.getMenu().getItem(2).setChecked(true);
-                                break;
-                        }
-                        binding.drawerLayout.closeDrawer(GravityCompat.START);
-                        return true;
+                item -> {
+                    boolean isChecked = item.isChecked();
+                    switch (item.getItemId()) {
+                        case R.id.action_home:
+                            if (isChecked) break;
+                            binding.bottomNavigation.setVisibility(View.VISIBLE);
+                            binding.toolbar.setTitle(getString(R.string.receive));
+                            switchFragment(assetReceiveFragment, AssetReceiveFragment.TAG);
+                            allClearNavigationMenuChecked();
+                            allClearBottomNavigationMenuChecked();
+                            binding.navigation.getMenu().getItem(0).setChecked(true);
+                            binding.bottomNavigation.getMenu().getItem(0).setChecked(true);
+                            break;
+                        case R.id.action_unregister:
+                            SweetAlertDialog dialog = new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                                    .setTitleText("Account Delete")
+                                    .setContentText("Are you sure want to delete your account info?")
+                                    .setConfirmClickListener(sweetAlertDialog -> {
+                                        sweetAlertDialog
+                                                .setTitleText("Deleting…")
+                                                .setContentText(null)
+                                                .changeAlertType(SweetAlertDialog.PROGRESS_TYPE);
+
+                                        Account.delete(getApplicationContext());
+
+                                        new Handler().postDelayed(() -> {
+                                            sweetAlertDialog
+                                                    .setTitleText(getString(R.string.successful))
+                                                    .setContentText(getString(R.string.message_account_deleted))
+                                                    .setConfirmClickListener(d -> {
+                                                        navigator.navigateToRegisterActivity(getApplicationContext());
+                                                        finish();
+                                                    })
+                                                    .changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                                        }, 1000);
+                                    });
+                            dialog.setCancelable(true);
+                            dialog.show();
+                            break;
+                        case R.id.action_oss:
+                            if (isChecked) break;
+                            binding.bottomNavigation.setVisibility(View.GONE);
+                            binding.toolbar.setTitle(getString(R.string.open_source_license));
+                            switchFragment(libsFragment, "libs");
+                            allClearNavigationMenuChecked();
+                            binding.navigation.getMenu().getItem(2).setChecked(true);
+                            break;
                     }
+                    binding.drawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
                 }
         );
     }

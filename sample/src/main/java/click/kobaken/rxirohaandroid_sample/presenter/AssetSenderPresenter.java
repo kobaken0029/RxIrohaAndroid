@@ -97,7 +97,7 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
             try {
                 send();
             } catch (ReceiverNotFoundException | SelfSendCanNotException e) {
-                assetSenderView.showError(ErrorMessageFactory.create(assetSenderView.getContext(), e));
+                assetSenderView.showWarning(ErrorMessageFactory.create(assetSenderView.getContext(), e));
             }
         };
     }
@@ -189,7 +189,7 @@ public class AssetSenderPresenter implements Presenter<AssetSenderView> {
                             if (NetworkUtil.isOnline(assetSenderView.getContext())) {
                                 assetSenderView.showError(ErrorMessageFactory.create(c, e));
                             } else {
-                                assetSenderView.showError(ErrorMessageFactory.create(c, new NetworkNotConnectedException()));
+                                assetSenderView.showWarning(ErrorMessageFactory.create(c, new NetworkNotConnectedException()));
                             }
                         }
 
