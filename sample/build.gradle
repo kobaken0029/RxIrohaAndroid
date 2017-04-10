@@ -38,7 +38,7 @@ android {
     }
 }
 
-def SUPPORT_PACKAGE_VERSION = "25.1.0"
+def SUPPORT_PACKAGE_VERSION = "25.3.1"
 def CIRCLE_IMAGE_VIEW_PACKAGE_VERSION = "2.1.0"
 
 dependencies {
