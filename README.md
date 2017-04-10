@@ -1,7 +1,7 @@
 # RxIrohaAndroid
 
 
-![build status](https://circleci.com/gh/kobaken0029/RxIrohaAndroid.svg?style=shield&circle-token=c3977114ce208efbb8bddd378d974b97e942662)
+![build status](https://circleci.com/gh/kobaken0029/RxIrohaAndroid.png?circle-token=:circle-token=c3977114ce208efbb8bddd378d974b97e942662)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/428a3bd7a8b947e2bc3bcf72b53ca9c2)](https://www.codacy.com/app/kobaken0029/RxIrohaAndroid?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kobaken0029/RxIrohaAndroid&amp;utm_campaign=Badge_Grade)
 
 ## About kobaken0029's FORK
