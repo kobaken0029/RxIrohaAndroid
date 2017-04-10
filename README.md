@@ -33,7 +33,7 @@ iroha-android is currently in active development, primarily internally at hyperl
 In your ```app/build.gradle```   
 
 ```gradle
-compile 'click.kobaken:rx-iroha-android:0.3.0'
+compile 'click.kobaken:rx-iroha-android:0.3.3'
 ```
 
 ### Maven
@@ -43,7 +43,7 @@ Or if you use Maven, like this
 <dependency>
   <groupId>click.kobaken</groupId>
   <artifactId>rx-iroha-android</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.3</version>
   <type>pom</type>
 </dependency>
 ```
@@ -51,35 +51,6 @@ Or if you use Maven, like this
 
 ## Usage
 ### API
-
-### click.kobaken.rxirohaandroid.security.KeyGenerator
-#### createKeyPair
-```java
-import click.kobaken.rxirohaandroid.security.KeyGenerator;
-import click.kobaken.rxirohaandroid.model.KeyPair;
-
-KeyPair keypair = KeyGenerator.createKeyPair();
-keypair.publicKey; // Ed25519 public key encoded by base64
-keypair.privateKey; // Ed25519 private key encoded by base64
-```
-
-#### sign
-```java
-import click.kobaken.rxirohaandroid.security.KeyGenerator;
-import click.kobaken.rxirohaandroid.model.KeyPair;
-
-String signature = KeyGenerator.sign(keyPair, "message")
-//===> signature // String
-```
-
-#### verify
-```java
-import click.kobaken.rxirohaandroid.security.KeyGenerator;
-import click.kobaken.rxirohaandroid.model.KeyPair;
-
-boolean verify = KeyGenerator.verify(keyPair.publicKey, signature, "message")
-//===> true if the correct message
-```
 
 ### click.kobaken.rxirohaandroid.security.MessageDigest
 #### digest
@@ -89,7 +60,7 @@ String hashedMessage = MessageDigest.digest("message", MessageDigest.SHA3_256);
 ```
 
 ### click.kobaken.rxirohaandroid.Iroha
-### Initialize
+#### Initialize
 In your app
 on 'onCreate' your class inheriting Application
 
@@ -100,6 +71,34 @@ new Iroha.Builder()
         .baseUrl("https://[input your domain(base url)]")
         .client(IrohaHttpClient.getInstance().get())
         .build();
+```
+
+#### createKeyPair
+```java
+import io.soramitsu.irohaandroid.Iroha;
+import io.soramitsu.irohaandroid.model.KeyPair;
+
+KeyPair keypair = Iroha.createKeyPair();
+keypair.publicKey; // Ed25519 public key encoded by base64
+keypair.privateKey; // Ed25519 private key encoded by base64
+```
+
+#### sign
+```java
+import io.soramitsu.irohaandroid.Iroha;
+import io.soramitsu.irohaandroid.model.KeyPair;
+
+String signature = Iroha.sign(keyPair, "message")
+//===> signature // String
+```
+
+#### verify
+```java
+import io.soramitsu.irohaandroid.Iroha;
+import io.soramitsu.irohaandroid.model.KeyPair;
+
+boolean verify = Iroha.verify(keyPair.publicKey, signature, "message")
+//===> true if the correct message
 ```
 
 ### Web API
