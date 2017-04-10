@@ -32,8 +32,7 @@ import click.kobaken.rxirohaandroid_sample.R;
 import click.kobaken.rxirohaandroid_sample.databinding.FragmentAccountRegisterBinding;
 import click.kobaken.rxirohaandroid_sample.presenter.AccountRegisterPresenter;
 import click.kobaken.rxirohaandroid_sample.view.AccountRegisterView;
-import click.kobaken.rxirohaandroid_sample.view.dialog.ProgressDialog;
-import click.kobaken.rxirohaandroid_sample.view.dialog.SuccessDialog;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class AccountRegisterFragment extends Fragment implements AccountRegisterView {
     public static final String TAG = AccountRegisterFragment.class.getSimpleName();
@@ -41,8 +40,7 @@ public class AccountRegisterFragment extends Fragment implements AccountRegister
     private AccountRegisterPresenter accountRegisterPresenter = new AccountRegisterPresenter();
 
     private FragmentAccountRegisterBinding binding;
-    private SuccessDialog successDialog;
-    private ProgressDialog progressDialog;
+    private SweetAlertDialog sweetAlertDialog;
 
     private AccountRegisterListener accountRegisterListener;
 
@@ -72,8 +70,6 @@ public class AccountRegisterFragment extends Fragment implements AccountRegister
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        successDialog = new SuccessDialog(inflater);
-        progressDialog = new ProgressDialog(inflater);
         return inflater.inflate(R.layout.fragment_account_register, container, false);
     }
 
@@ -108,23 +104,35 @@ public class AccountRegisterFragment extends Fragment implements AccountRegister
 
     @Override
     public void showError(final String error) {
-        binding.userNameContainer.setError(error);
-        binding.userNameContainer.setErrorEnabled(true);
+        if (sweetAlertDialog == null || !sweetAlertDialog.isShowing()) {
+            sweetAlertDialog = new SweetAlertDialog(getActivity(), SweetAlertDialog.ERROR_TYPE);
+            sweetAlertDialog.setTitleText(getString(R.string.error))
+                    .setContentText(error)
+                    .show();
+        } else {
+            sweetAlertDialog.setTitleText(getString(R.string.error))
+                    .setContentText(error)
+                    .show();
+        }
+    }
+
+    @Override
+    public void showWarning(String warning) {
+        if (sweetAlertDialog == null || !sweetAlertDialog.isShowing()) {
+            sweetAlertDialog = new SweetAlertDialog(getActivity(), SweetAlertDialog.WARNING_TYPE);
+            sweetAlertDialog.setTitleText(getString(R.string.warning))
+                    .setContentText(warning)
+                    .show();
+        } else {
+            sweetAlertDialog.setTitleText(getString(R.string.warning))
+                    .setContentText(warning)
+                    .changeAlertType(SweetAlertDialog.ERROR_TYPE);
+        }
     }
 
     @Override
     public void registerSuccessful() {
-        successDialog.show(
-                getActivity(),
-                getString(R.string.register),
-                getString(R.string.message_account_register_successful),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        successDialog.hide();
-                        accountRegisterListener.onAccountRegisterSuccessful();
-                    }
-                });
+        accountRegisterListener.onAccountRegisterSuccessful();
     }
 
     @Override
@@ -135,11 +143,13 @@ public class AccountRegisterFragment extends Fragment implements AccountRegister
     @Override
     public void showProgress() {
         binding.userNameContainer.setErrorEnabled(false);
-        progressDialog.show(getActivity(), getString(R.string.during_registration));
+        sweetAlertDialog = new SweetAlertDialog(getActivity(), SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.setCancelable(false);
+        sweetAlertDialog.setTitleText(getString(R.string.during_registration)).show();
     }
 
     @Override
     public void hideProgress() {
-        progressDialog.hide();
+        // nothing
     }
 }

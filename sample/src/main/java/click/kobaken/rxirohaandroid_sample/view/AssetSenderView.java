@@ -21,6 +21,8 @@ import android.view.View;
 public interface AssetSenderView extends LoadingView {
     void showError(String error);
 
+    void showWarning(String warning);
+
     void showSuccess(String title, String message, View.OnClickListener onClickListener);
 
     void hideSuccess();

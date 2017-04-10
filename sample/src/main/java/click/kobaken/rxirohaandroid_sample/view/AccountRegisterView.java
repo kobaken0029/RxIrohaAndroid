@@ -19,6 +19,8 @@ package click.kobaken.rxirohaandroid_sample.view;
 public interface AccountRegisterView extends LoadingView {
     void showError(String error);
 
+    void showWarning(String warning);
+
     void registerSuccessful();
 
     String getAlias();
