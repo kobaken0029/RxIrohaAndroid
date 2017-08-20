@@ -1,0 +1,39 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: lakoo/android-ndk:25-25.0.3-r14b
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - run:
+          name: Download Dependencies
+          command: ./gradlew lib:androidDependencies
+      - save_cache:
+          paths: ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "lib/build.gradle" }}
+      - run:
+          name: Run Lint
+          command: ./gradlew lib:lint
+      - run:
+          name: Run Tests
+          command: ./gradlew lib:test
+      - store_test_results:
+          path: lib/build/test-results
+      - store_artifacts:
+          path: lib/build/reports
+          destination: reports
+#      - run:
+#          name: Build APK & Distribute DeployGate
+#          command: |
+#            # CircleCI 2.0の新機能であるWorkflowは使用せず、CIRCLE_BRANCHを見て分岐している。
+#            # テスト失敗時にビルドが上がらないでほしい（＝並列に実行できない）のでWorkflowを使う旨みがあまりなかったため。
+#            if [ $CIRCLE_BRANCH = "master" ] || [ $CIRCLE_BRANCH = "develop" ]; then
+#                # 特定ブランチの場合のみAPKのビルド＆DeployGateへのアップロード
+#            else
+#                echo "DeployGate distribution is skipped."
+#            fi
+      - store_artifacts:
+          path: lib/build/outputs/apk
+          destination: apks
